@@ -1,15 +1,15 @@
 version: 0.2
 env:
-  git-credential-helper: 'yes'
+  git-credential-helper: 'yes'  # 깃 레파지토리 클론 하는 명령어
   variables:
     # docker 파라미터 정의
-    ECS_CONTAINER_NAME: ecs-streamlit-container
+    ECS_CONTAINER_NAME: ecs-streamlit-container # AWS ECS에 만든 컨테이너 이름
     IMAGE_REPO_NAME: ecs-streamlit-ecr # aws ecr에 등록이 되어 있는 name
-    IMAGE_TAG: latest
-    AWS_DEFAULT_REGION: ap-northeast-2
+    IMAGE_TAG: latest # 태그 설정, 아무거나 해도 됨.
+    AWS_DEFAULT_REGION: ap-northeast-2  # AWS 리전 설정
 
 phases:
-  pre_build:
+  pre_build:  # ECR에 깃 레파지토리의 코드를 올리는 명령어들
     commands:
       # Docker push를 할 ECR에 로그인 필요
       # https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ecr/get-login-password.html
@@ -23,11 +23,11 @@ phases:
         ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
 
-  build:
+  build:  # 이미지를 만드는 명령어들
     commands:
       - echo Build started on `date`
       # 프로젝트 폴더로 이동
-      - cd ./4-2_AWS_CICD_Example/chatbot
+      # - cd ./4-2_AWS_CICD_Example/chatbot # 깃허브 레파지토리에 실제로 코드가 있는 경로로 이동하기 위한 명령어. 우리는 바로 코드가 있어서 필요없음.
       - pwd
       - echo Building the Docker image...
       # Github Repository에 있는 Dockerfile의 위치에 맞춰 수정 
@@ -38,14 +38,14 @@ phases:
     commands:
       - echo package Source...
       - echo push the Docker image...
-      - docker push $REPOSITORY_URI
+      - docker push $REPOSITORY_URI   # AWS의 docker hub 같은 곳이 ECR임. 여기에 코드를 push함.
 
       # Give your container name
       - printf '[{"name":"%s","imageUri":"%s"}]' $ECS_CONTAINER_NAME
-        $REPOSITORY_URI > ../../imagedefinitions.json
+        $REPOSITORY_URI > imagedefinitions.json   # 현재 레파지토리 경로에 imagedefinitions.json 생성.
       - echo $ECS_CONTAINER_NAME
-      - echo printing ../../imagedefinitions.json
-      - cat ../../imagedefinitions.json
+      - echo printing imagedefinitions.json
+      - cat imagedefinitions.json
 
 artifacts:
     files: 
