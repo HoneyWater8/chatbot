@@ -49,4 +49,4 @@ phases:
 
 artifacts:
     files: 
-      - imagedefinitions.json
+      - imagedefinitions.json   # ec2의 입력 아티팩트로 들어갈 예정임.
